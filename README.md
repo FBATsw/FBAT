@@ -2,7 +2,7 @@
 This repository contains the Family Based Association Test (FBAT) software source code. The FBAT software provides the implementation for several family-based association tests. 
 
 ## FBAT-TOOLKIT
-The FBAT-Toolkit was developed in the Department of Biostatistics at the Harvard T.H. Chan School of Public Health. The FBAT software (Linux executable, 64 bit, region-based extension "gen_rv", development version) and example pedigree files can be found [here](https://sites.google.com/view/fbatwebpage). The user manual can be found [here](https://drive.google.com/file/d/1QYada0wegEbspwFPRlyv7g9hKNv7krmA/view)
+The FBAT-Toolkit was developed in the Department of Biostatistics at the Harvard T.H. Chan School of Public Health. The FBAT software (Linux executable, 64 bit, region-based extension "gen_rv", development version) and example pedigree files can be found [here](https://sites.google.com/view/fbatwebpage). The user manual can be found [here](https://drive.google.com/file/d/1QYada0wegEbspwFPRlyv7g9hKNv7krmA/view).
 
 ## FBAT Overview
 FBAT is an acronym for Family-Based Association Tests in genetic analyses. Family-based association designs, as opposed to case-control study designs, are particularly attractive, since they test for linkage as well as association, avoid spurious associations caused by admixture of populations, and are convenient for investigators interested in refining linkage findings in family samples.
