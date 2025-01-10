@@ -3,6 +3,8 @@
 #include <cmath>
 #include <iostream>
 #include <iomanip>
+#include <string> //!/
+#include <map> //!/
 #include "fbat.h"
 #include "mystream.h"
 #include "myerror.h"
@@ -15,6 +17,7 @@
 #include "newmatio.h"
 #include "sufficient_stat.h"
 #include "rand.h"
+#include "dapg_fbat.h" //!/
 
 const char *model_name[] = { "additive", "dominant", "recessive", "genotype", "cmm_estimate", "user defined" };
 const char *mode_name[] = { "bi-allelic", "multi-allelic", "both" };
@@ -34,7 +37,7 @@ void FBAT::init() {
                *     *          *     *    *       *       *         *\n\
                *     *          * * *     *         *      *         *\n\
                *                                                     *\n\
-               *          v2.0.8 	     			     *\n\
+               *          v2.0.9 	     			     *\n\
                *          Program for Population Genetics            *\n\
                *          Harvard School of Public Health            *\n\
                *                                                     *\n\
@@ -103,12 +106,16 @@ void FBAT::init() {
   			static_cast<funcp> (&FBAT::select_maxsim_region) //!/
  		}, //!/
 		{	"gen_rv",  //!/
- 			"gen_rv", //!/
+ 			"gen_rv [marker...] -- perform rare variant testing for a region", //!/
   			static_cast<funcp> (&FBAT::gen_rvtest) //!/
 		}, //!/
 		{	"gen_cond_rv",  //!/
  			"gen_cond_rv", //!/
   			static_cast<funcp> (&FBAT::gen_cond_rvtest) //!/
+		}, //!/
+		{	"finemap",  //!/
+ 			"finemap [marker] -- perform DAP-G fine-mapping", //!/
+  			static_cast<funcp> (&FBAT::finemap) //!/
 		} //!/
 /*		{	"pbat", 
  			"pbat [-o] [-c] [-i] [marker...] -- FBAT test.\n     -c censored trait\n     -i Use conditional mean medel\n     -o optimize offset",
@@ -133,7 +140,7 @@ void FBAT::init() {
  		*/
 	};
 
-	addcmd(cmds, 17);
+	addcmd(cmds, 18);
 	
 	MYOUTPUT(os, title)
 	
@@ -1175,7 +1182,327 @@ void FBAT::gen_rvtest(char *s) {//!/
 		delete[] idx;
 	if(ss_array)
 		delete[] ss_array;
-} //!/	
+} //!/
+
+void FBAT::finemap(char *s) {
+	
+	char word[1024], *c;
+	int i, k, j;
+	/*########################*/
+	double offset = tr_offset;
+	if (n_sel_trt>1) 
+		throw Param_Error("multivariate fine-mapping is not available"); 
+	// set trait to affection status if no other trait selected yet
+	if (n_sel_trt == 0) {
+		n_sel_trt = 1;
+		trait_id[0] = 0;
+	}
+	if(min_size<10){min_size=10;}
+	/*########################*/
+	int wcnt = WordCount(s);
+	int flag=0;
+	bool verbose=false;
+	for (i=2; i<=wcnt && GetWord(s, i, word) && *word=='-'; i++) {
+		if (word[2]==0)
+			switch (word[1]) {
+				case 'v': 
+					verbose = true;
+					break;
+			}
+	}
+
+	
+	if (gen_model == model_genotype)
+		throw Param_Error("The requested genotype test has not been implemented.");
+	
+	MYOUTPUT(os, "Performing DAP-G fine-mapping...\n")
+	
+	print_settings();
+	/*########################*/
+	
+	int nsel = i>=wcnt? nLoci : wcnt-i+1;
+	int *idx = new int[nsel];
+	if (i>wcnt)
+		for (nsel=0; nsel<nLoci; nsel++)
+			idx[nsel] = nsel;
+	else {
+		for (nsel=0; i<=wcnt; i++) {
+				GetWord(s, i, word);
+				if ((k=find_locus(word))>=0)
+					idx[nsel++] = k;
+				else {
+					if (idx!=NULL)
+						delete[] idx;
+					char msg[256];
+					sprintf(msg, "Marker %s not found", word);
+					throw Param_Error(msg);
+				}
+		}
+	}
+	
+	double gx[kMaxAlleles][3];
+	if (gen_model==model_additive || gen_model==model_dominant || gen_model==model_recessive)
+		for (i=0; i<kMaxAlleles; i++)
+			gcode(&gx[i][0], gen_model);
+
+	/*########################*/
+	
+	int na;
+	double *frq; 
+
+	for (i=0; i<nsel; i++) {
+				na = loc[idx[i]].nAlleles;
+				if(na>2){
+					throw Param_Error("Fine-mapping implemented for bi-allelic variants only.");
+				}
+				if(loc[idx[i]].sexlinked()){
+					throw Param_Error("Fine-mapping implemented for non-sexlinked variants only.");
+				}
+	}
+		
+	int loc_idx;
+	Sufficient_Stat *ss;
+	
+	int geno_ctr=0;
+	for (PEDIGREELIST *ped=peds; ped!=NULL; ped=ped->next) {
+			for (NUCFAMILYLIST *flist=ped->node->nucfams; flist!=NULL; flist=flist->next) {
+				geno_ctr++;
+			}
+	}
+	/*########################*/
+	int dim_var=2*nsel;
+	
+	int *fcnt=new int[dim_var+1];
+	if(fcnt==NULL){
+		throw Param_Error("Memory allocation problem.");
+	}
+	for(i=0;i<=dim_var;i++){fcnt[i]=0;}
+	
+	ColumnVector Z_tmp(dim_var);
+	Matrix R_work_tmp(dim_var, geno_ctr);	
+	
+	
+	Z_tmp=0; R_work_tmp=-9; // -9 is missing value
+	int ctr=0;
+	std::vector<std::string> geno_map_all;
+	std::string str_name;
+	std::string a1="_1";
+	std::string a2="_2";
+	
+	
+	for(loc_idx=0;loc_idx<nsel;loc_idx++){
+		
+		str_name=loc[loc_idx].name;
+		geno_map_all.push_back(str_name + a1);
+		geno_map_all.push_back(str_name + a2);
+		
+		
+		na=loc[loc_idx].nAlleles;
+		
+		if(na==2){
+		
+			ColumnVector S(na);	
+			Matrix V(na,na);	//nuisance
+			Matrix A(na,na);	
+			Matrix B(na,na);
+			ColumnVector X(na);
+			ColumnVector FS(na);
+			ColumnVector PS(na);	
+			ColumnVector FES(na);
+			Matrix FV(na,na);
+			Matrix FA(na,na);
+			Matrix FB(na,na);
+			ColumnVector FX(na);
+			
+			X = 0;
+			S = 0;
+			A = 0;
+			B = 0;
+			V = 0;
+			
+			geno_ctr=0;
+			
+			for (PEDIGREELIST *ped=peds; ped!=NULL; ped=ped->next) {
+				
+				for (NUCFAMILYLIST *flist=ped->node->nucfams; flist!=NULL; flist=flist->next) {
+					geno_ctr++; //!/
+					if (flist->node!=NULL && flist->node->testflag(flag_uninformative)==0) {
+						
+						
+						if (flist->node->stat!=NULL) {
+							delete flist->node->stat;
+							flist->node->stat = NULL;
+						}
+						ss = new Sufficient_Stat(flist->node, 1, &loc_idx, loc[loc_idx].sexlinked());
+						flist->node->stat = ss;
+						
+						if(ss->ogt[0][0].defined()) R_work_tmp(ctr+1, geno_ctr) = gx[0][ss->ogt[0][0].allele_cnt(1)];
+						if(ss->ogt[0][0].defined()) R_work_tmp(ctr+1, geno_ctr) = gx[1][ss->ogt[0][0].allele_cnt(2)];
+						
+						if (ss==NULL || ss->mhap==NULL || ss->mhap->len()>maxcmh)
+							continue; 
+
+						ss->get_common_ogt();
+						ss->analyze();
+						if (ss->informative() && ss->fbat_stat3(trait_id[0], offset, FES, FS, FV, FA, FB, FX, gx, flag)) {
+
+							FS -= FES;
+							PS += FS;
+					
+							S += FS;
+							V += FV;
+							
+							if (FV(1,1)>very_small_number) {
+										fcnt[ctr+1]++; //!/		
+							}
+							if (FV(2,2)>very_small_number) {
+										fcnt[ctr+2]++; //!/		
+							}
+							
+						}
+					}
+					
+				}
+	  
+			}
+			
+			Z_tmp(ctr+1)=S(1)/sqrt(V(1,1));
+			Z_tmp(ctr+2)=S(2)/sqrt(V(2,2));
+		}
+		ctr=ctr+2;
+		
+	}
+	/*########################*/
+	
+	double m;
+	double tmp;
+	
+	Matrix R_work(dim_var, dim_var);
+	for(i=1;i<=dim_var;i++){
+		m=0.0;
+		ctr=0;
+		for(k=1;k<=geno_ctr;k++){
+				if(R_work_tmp(i,k)!=-9 ){
+					m+=R_work_tmp(i,k);
+					ctr++;
+				}
+		}
+		m/=(double)ctr;
+		for(k=1;k<=geno_ctr;k++){
+				if(R_work_tmp(i,k)!=-9 ){
+					R_work_tmp(i,k)=R_work_tmp(i,k)-m;
+				}
+				else{
+					R_work_tmp(i,k)=0.0;
+				}
+		}
+	}
+
+	for(i=1;i<=dim_var;i++){
+		for(j=1;j<=dim_var;j++){
+			tmp=0.0;
+			for(k=1;k<=geno_ctr;k++){
+				tmp+=R_work_tmp(i,k)*R_work_tmp(j,k);
+			}
+			R_work(i,j)=tmp;
+		}
+	}
+	
+	// transform from 'covariance' to 'correlation'
+	ColumnVector variances(dim_var); variances=0.0;
+	for(i=1;i<=dim_var;i++){variances(i)=R_work(i,i);}
+	for(i=1;i<=dim_var;i++){
+		for(j=1;j<=dim_var;j++){
+			R_work(i,j)=R_work(i,j)/sqrt(variances(i)*variances(j));
+		}
+	}
+	
+	/*########################*/
+	int* include=new int[dim_var+1];
+	if(include==NULL){
+		throw Param_Error("Memory allocation problem.");
+	}
+	int incl_ctr;
+	incl_ctr=0;
+	for(i=1;i<=dim_var;i+=2){
+		include[i]=0;
+		include[i+1]=0;
+		
+		if(gen_model == model_additive && fcnt[i]>=min_size){
+			include[i]=1;
+			incl_ctr++;
+			
+		}
+		if(gen_model == model_recessive && fcnt[i]>=min_size){
+			include[i]=1;
+			incl_ctr++;
+		}
+		if(gen_model == model_recessive && fcnt[i+1]>=min_size){
+			include[i+1]=1;
+			incl_ctr++;
+		}
+	}
+	
+	if(incl_ctr<5)
+		throw Param_Error("After filtering, less than 5 variables left.");
+    /* #######################################################*/
+	
+	nsel=incl_ctr;
+	ColumnVector Z(nsel);
+	Matrix R(nsel, nsel);
+	R=0;
+	
+	int c1,c2; c1=c2=0;
+	for(i=1;i<=dim_var;i++){
+		if(include[i]==1){
+			c2=0;
+			c1++;
+			Z(c1)=Z_tmp(i);
+			for(j=1;j<=dim_var;j++){
+				if(include[j]==1){
+					c2++;
+					R(c1,c2)=R_work(i,j);
+				}
+			}
+		}
+	}
+	
+	/*##############*/
+	
+	std::map<int, std::string> geno_map_p;
+	incl_ctr=0;
+    for(i=1;i<=dim_var;i++){
+		if(include[i]==1){
+			geno_map_p[incl_ctr] = geno_map_all[i-1];
+			incl_ctr++;
+		} 
+    }
+
+	/*########################################################*/
+    controller con;
+    con.initialize(Z, R, nsel, geno_map_p);
+	
+	
+    con.fine_map();
+    finemap_results fr=con.summarize_approx_posterior(verbose);
+	
+ 
+	MYOUTPUT(os, "\ncluster 	  #variants  	   PIP    	   r2\n")	   
+    for(i=0;i<fr.cluster_counts.size();i++){
+		MYOUTPUT(os, setw(3)<< ">>"<< setw(12)<< i+1<< setw(15) <<fr.cluster_counts[i]<< setw(18) << fr.cluster_pips[i]<< setw(19) <<fr.cluster_r2s[i]<<"\n")
+    }
+	
+	MYOUTPUT(os, "\nvariant   	incl_probability 	    cluster    	   log_BF 		z-score\n")	   
+    for(i=0;i<fr.variant_names.size();i++){
+		MYOUTPUT(os, setw(4)<< ">>>" << setw(24) <<fr.variant_names[i]<< setw(25) <<fr.incl_probs[i]<< setw(18) << fr.cluster_ids[i]<< setw(19) <<fr.log_bfs[i]<< setw(15) <<fr.z_scores[i]<<"\n")
+    }
+	
+	/*########################*/
+	// free memory
+	if (idx) delete[] idx;
+	if(fcnt) delete fcnt;
+	if(include) delete include;
+}
 void FBAT::hapview_ss(char *s) {
 	
 	int i = WordCount(s);

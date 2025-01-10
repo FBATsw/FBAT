@@ -29,7 +29,7 @@ dep .depend:
 .cpp.o:
 	$(CC) $(CFLAGS) -c $<
 
-infiles    = betabase.o breakpoint.o data.o fbat.o gammabas.o main.o myutil.o normbase.o pedigree.o rand.o shell.o sufficient_stat.o xfunc.o ires.o
+infiles    = betabase.o breakpoint.o data.o fbat.o gammabas.o main.o myutil.o normbase.o pedigree.o rand.o shell.o sufficient_stat.o xfunc.o ires.o mlr_fbat.o dapg_fbat.o
 
 fbat:	$(infiles)
 	$(CC) $(CFLAGS) $(LFLAGS) -o fbat $(infiles) libnewmat.a 

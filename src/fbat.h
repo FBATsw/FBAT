@@ -47,6 +47,7 @@ public:
 	void select_maxsim_region(char *s); //!/
 	void gen_rvtest(char *s); //!/
 	void gen_cond_rvtest(char *s);//!/
+	void finemap(char *s); //!/
 	int* do_rand_sim_fam(Sufficient_Stat* ss); //!/
 	int draw_index_pat(double* probs,int len); //!/
 	bool check_consistent_cond(Sufficient_Stat* ss, int index, int* random_index); //!/

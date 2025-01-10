@@ -1140,8 +1140,8 @@ int Sufficient_Stat::enumerate_genotype_from_allele(int idx, Genotype *ppgt) {
 	int missing_indicator=0; //!/
 	
 	//parents alleles
-	for (k=0; k<2; k++) {
-		if (pgt[k][idx].defined(xlink && k==0))
+	for (k=0; k<2; k++) { //!/ modification 8/7/2024, added curly brackets around if-statement
+		if (pgt[k][idx].defined(xlink && k==0)){
 			for (i=0; i<(xlink && k==0?1:2); i++) {
 				a = pgt[k][idx].a[i];
 				for(j=0; j<npa && pa[j]!=a; j++)
@@ -1149,15 +1149,17 @@ int Sufficient_Stat::enumerate_genotype_from_allele(int idx, Genotype *ppgt) {
 				if (j==npa) // new allele
 					pa[npa++] = a;
 			}
-			else if ((k==0 && fa_bool==1) || (k==1 && mo_bool==1)) //!/
-		    { //!/
+		}
+		else if ((k==0 && fa_bool==1) || (k==1 && mo_bool==1)) //!/
+		{ //!/
 				missing_indicator=1; //!/
-			} //!/
+		} //!/
 	}
 	
 	// offs alleles
-	for (k=0; k<n_offspring; k++) {
-		if (ogt[k][idx].defined(xlink && sex[k]==1))
+	for (k=0; k<n_offspring; k++) { //!/ modification 8/7/2024, added curly brackets around if-statement
+		if (ogt[k][idx].defined(xlink && sex[k]==1)){
+			
 			for (i=0; i<(xlink && sex[k]==1?1:2); i++) {
 				a = ogt[k][idx].a[i];
 				for(j=0; j<npa && pa[j]!=a; j++)
@@ -1165,9 +1167,10 @@ int Sufficient_Stat::enumerate_genotype_from_allele(int idx, Genotype *ppgt) {
 				if (j==npa) // new allele
 					pa[npa++] = a;
 			}
-			else{ //!/
+		}
+		else{ //!/
 				missing_indicator=1; //!/
-			} //!/
+		} //!/
 	}
 	
 	if (npa == 0) return 0;
