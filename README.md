@@ -1,18 +1,91 @@
-# Source Code
-This repository contains the Family Based Association Test (FBAT) software source code. The FBAT software provides the implementation for several family-based association tests. 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>FBAT Team</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="FBAT Team Information" />
+<meta name="author" content="FBAT Team" />
+<!-- css -->
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    margin: 0;
+    padding: 0;
+  }
+  #header {
+    background-color: #2c3e50;
+    color: white;
+    padding: 30px 0;
+    text-align: center;
+  }
+  #header h1 {
+    margin: 0;
+    font-size: 2em;
+  }
+  #header p {
+    margin: 0;
+    font-size: 1.2em;
+  }
+  #content {
+    padding: 20px;
+    text-align: center;
+  }
+  #content h2 {
+    font-size: 1.8em;
+    margin-top: 0;
+  }
+  #content p, #content ul {
+    font-size: 1em;
+    line-height: 1.6em;
+    text-align: left;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  footer {
+    background-color: #2c3e50;
+    color: white;
+    padding: 10px 0;
+    text-align: center;
+    font-size: 0.9em;
+  }
+</style>
+</head>
+<body>
+<div id="header">
+  <h1>FBAT TEAM</h1>
+  <p>(alphabetical order)<br>
+  Gourab De, Julian Hecker, Steve Horvath, Nan Laird, Steve Lake, Christoph Lange, Sharon Lutz, Kristel Van Steen, Adam Sykes, Lin Wang, Wai-Ki Yip, Xin Xu, and Jin Jin Zhou - FBAT</p>
+</div>
 
-## Update January 2025
-The new code release contains methodology to perform statistical fine-mapping of FBAT association statistics in a genetic region of interest. This code is under development and will be updated accordingly.
+<div id="content">
+  <h2>FBAT</h2>
+  <p>FBAT provides the software implementation for several family-based association tests. The FBAT package was developed in the Department of Biostatistics at the Harvard T.H. Chan School of Public Health.</p>
+  <ul>
+    <li><strong>FBAT v208</strong> – Family Based Association Testing software (Linux executable, 64 bit, region-based extension "gen_rv", development version)</li>
+    <li><strong>FBAT v204</strong> – Family Based Association Testing software (Linux executable, 64 bit, before region-based extension, stable version)</li>
+    <li><strong>FBAT User's Manual</strong> (current version does not cover new region-based methodology)</li>
+    <li><strong>fbat-tour</strong> -- example files I</li>
+    <li><strong>FBAT example ped file</strong> -- example file containing 1000 trios and 30 variants</li>
+    <li><strong>FBAT source code</strong> is available on GitHub: <a href="https://github.com/FBATsw/FBAT" target="_blank">https://github.com/FBATsw/FBAT</a> under the GNU General Public License v3.0.</li>
+  </ul>
+  <p>FBAT manual needs to be updated to describe the new region-based association methodology. Essentially, the new methodology is implemented in the command "gen_rv". The general structure is the same as for the old Burden test approach "fbat -v0" and "fbat -v1".</p>
+  <p><strong>Caution:</strong> The website <a href="https://sites.google.com/view/fbat-web-page" target="_blank">https://sites.google.com/view/fbat-web-page</a> is outdated and will be offline soon.</p>
+  <p>Boston, October 2023</p>
 
-## FBAT-TOOLKIT
-The FBAT-Toolkit was developed in the Department of Biostatistics at the Harvard T.H. Chan School of Public Health. The FBAT software (Linux executable, 64 bit, region-based extension "gen_rv", development version) and example pedigree files can be found [here](https://sites.google.com/view/fbatwebpage). The user manual can be found [here](https://drive.google.com/file/d/1QYada0wegEbspwFPRlyv7g9hKNv7krmA/view).
+  <h2>If you publish results obtained from using FBAT, please cite:</h2>
+  <ul>
+    <li>Laird NM, Lange C. Family-based designs in the age of large-scale gene-association studies. Nat Rev Genet. 2006 May;7(5):385-94. doi: 10.1038/nrg1839. PMID: 16619052.</li>
+    <li>Horvath S, Xu X, Lake SL, Silverman EK, Weiss ST, Laird NM. Family-based tests for associating haplotypes with general phenotype data: application to asthma genetics. Genet Epidemiol. 2004 Jan;26(1):61-9. doi: 10.1002/gepi.10295. PMID: 14691957.</li>
+    <li>Hecker J, Xu X, Townes FW, Loehlein Fier H, Corcoran C, Laird N, Lange C. Family-based tests for associating haplotypes with general phenotype data: Improving the FBAT-haplotype algorithm. Genet Epidemiol. 2018 Feb;42(1):123-126. doi: 10.1002/gepi.22094. Epub 2017 Nov 21. PMID: 29159827; PMCID: PMC5774664.</li>
+  </ul>
+</div>
 
-## FBAT Overview
-FBAT is an acronym for Family-Based Association Tests in genetic analyses. Family-based association designs, as opposed to case-control study designs, are particularly attractive, since they test for linkage as well as association, avoid spurious associations caused by admixture of populations, and are convenient for investigators interested in refining linkage findings in family samples.
-
-The unified approach to family-based tests of association, introduced by Rabinowitz and Laird (2000) and Laird et al. (2000), builds on the original TDT method (Spielman et al., 1993) in which alleles transmitted to affected offspring are compared with the expected distribution of alleles among offspring. In particular, the method puts tests of different genetic models, tests of different sampling designs, tests involving different disease phenotypes, tests with missing parents, and tests of different null hypotheses, all in the same framework. Similar in spirit to a classical TDT test, the approach compares the genotype distribution observed in the ‘cases’ to its expected distribution under the null hypothesis, the null hypothesis being “no linkage and no association” or “no association, in the presence of linkage”. Here, the expected distribution is derived using Mendel’s law of segregation and conditioning on the sufficient statistics for any nuisance parameters under the null. Since conditioning eliminates all nuisance parameters, the technique avoids confounding due to model misspecification as well as admixture or population stratification (Rabinowitz and Laird, 2000; Lazzeroni and Lange, 1998).
-
-In order to adapt these “classical” family-based association tests to even more complex scenarios such as multivariate or longitudinal data sources with either binary or quantitative traits, a broader class of conditional tests has been defined (refer to Laird and Lange, 2006). The FBAT rare variant statistic is the latest addition to these tests (De et al, 2011, Yip et al, 2011, Zhou et al, 2013).
-
-## Implementation of Methods
-These methods have all been implemented in the FBAT-toolkit, which consists of two packages: FBAT and PBAT. The software provides methods for a wide range of situations that arise in family-based association studies. It provides options to test linkage or association in the presence of linkage, using marker or haplotype data, single or multiple traits. PBAT can compute a variety of univariate, multivariate and time-to-onset statistics for nuclear families as well as for extended pedigrees. PBAT can also include covariates and gene/covariate-interactions in all computed FBAT-statistics. Further, PBAT can be used for pre- and post-study power calculations and construction of the most powerful test statistic. For situations in which multiple traits and markers are given, PBAT provides screening tools to sift through a large pool of traits and markers and to select the most ‘promising’ combination of traits and markers thereof, while at the same time handling the multiple testing problem. For further details on PBAT, see the PBAT webpage; the remainder of this manual will focus on the FBAT package.
+<footer>
+  <p>&copy; 2023 FBAT Team. All rights reserved.</p>
+</footer>
+</body>
+</html>
