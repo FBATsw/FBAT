@@ -1,6 +1,7 @@
 # Source Code
 This repository contains the Family Based Association Test (FBAT) software source code. The FBAT software provides the implementation for several family-based association tests. 
 
+ [!NOTE]
 ## Update January 2025
 The new code release contains methodology to perform statistical fine-mapping of FBAT association statistics in a genetic region of interest. This code is under development and will be updated accordingly.
 
