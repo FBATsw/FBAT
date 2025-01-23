@@ -1187,7 +1187,7 @@ void FBAT::gen_rvtest(char *s) {//!/
 void FBAT::finemap(char *s) {
 	
 	char word[1024], *c;
-	int i, k, j;
+	int i, k, j, n_var;
 	/*########################*/
 	double offset = tr_offset;
 	if (n_sel_trt>1) 
@@ -1215,7 +1215,7 @@ void FBAT::finemap(char *s) {
 	if (gen_model == model_genotype)
 		throw Param_Error("The requested genotype test has not been implemented.");
 	
-	MYOUTPUT(os, "Performing DAP-G fine-mapping...\n")
+	MYOUTPUT(os, "Performing DAP-G FBAT fine-mapping...\n")
 	
 	print_settings();
 	/*########################*/
@@ -1447,9 +1447,9 @@ void FBAT::finemap(char *s) {
 		throw Param_Error("After filtering, less than 5 variables left.");
     /* #######################################################*/
 	
-	nsel=incl_ctr;
-	ColumnVector Z(nsel);
-	Matrix R(nsel, nsel);
+	n_var=incl_ctr;
+	ColumnVector Z(n_var);
+	Matrix R(n_var, n_var);
 	R=0;
 	
 	int c1,c2; c1=c2=0;
@@ -1479,14 +1479,47 @@ void FBAT::finemap(char *s) {
     }
 
 	/*########################################################*/
+	if(verbose){
+		ofstream outFileZ("tmp_Z");
+		if (!outFileZ.is_open()) {
+			throw Param_Error("Error opening file.");
+			
+		}
+		for (i=1;i<=n_var;i++) {
+			
+			outFileZ << geno_map_p[i-1];
+			outFileZ << " "; 
+			outFileZ << Z(i);
+			outFileZ << "\n"; // New line after each row
+		}
+		outFileZ.close();
+		ofstream outFileR("tmp_R");
+		if (!outFileR.is_open()) {
+			throw Param_Error("Error opening file.");
+			
+		}
+		for (i=1;i<=n_var;i++) {
+			for(j=1;j<=n_var-1;j++){
+				outFileR << R(i,j);
+				outFileR << " "; 
+			}
+			outFileR << R(i, n_var);
+			outFileR << "\n";
+		}
+		outFileR.close();
+    }
+	
+	
+	// DAP-G computation
     controller con;
-    con.initialize(Z, R, nsel, geno_map_p);
+    con.initialize(Z, R, n_var, geno_map_p);
 	
 	
     con.fine_map();
     finemap_results fr=con.summarize_approx_posterior(verbose);
 	
  
+    // Output results
 	MYOUTPUT(os, "\ncluster 	  #variants  	   PIP    	   r2\n")	   
     for(i=0;i<fr.cluster_counts.size();i++){
 		MYOUTPUT(os, setw(3)<< ">>"<< setw(12)<< i+1<< setw(15) <<fr.cluster_counts[i]<< setw(18) << fr.cluster_pips[i]<< setw(19) <<fr.cluster_r2s[i]<<"\n")
