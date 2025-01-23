@@ -16,6 +16,3 @@ In order to adapt these “classical” family-based association tests to even m
 
 ## Implementation of Methods
 These methods have all been implemented in the FBAT-toolkit, which consists of two packages: FBAT and PBAT. The software provides methods for a wide range of situations that arise in family-based association studies. It provides options to test linkage or association in the presence of linkage, using marker or haplotype data, single or multiple traits. PBAT can compute a variety of univariate, multivariate and time-to-onset statistics for nuclear families as well as for extended pedigrees. PBAT can also include covariates and gene/covariate-interactions in all computed FBAT-statistics. Further, PBAT can be used for pre- and post-study power calculations and construction of the most powerful test statistic. For situations in which multiple traits and markers are given, PBAT provides screening tools to sift through a large pool of traits and markers and to select the most ‘promising’ combination of traits and markers thereof, while at the same time handling the multiple testing problem. For further details on PBAT, see the PBAT webpage; the remainder of this manual will focus on the FBAT package.
-
-
-
