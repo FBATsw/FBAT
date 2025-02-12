@@ -6,14 +6,15 @@ The new code release contains methodology to perform statistical fine-mapping of
 The files 'finemap_example.ped' and 'finemap_example.phe' can be used to test this approach.
 Run:
 
-./fbat
+./fbat  
 
-and then:
-load finemap_example.ped
-load finemap_example.phe
-trait y
-finemap
-quit
+and then:  
+load finemap_example.ped  
+load finemap_example.phe   
+trait y  
+finemap  
+quit  
+
 
 ## FBAT-TOOLKIT
 The FBAT-Toolkit was developed in the Department of Biostatistics at the Harvard T.H. Chan School of Public Health. The FBAT software (Linux executable, 64 bit, region-based extension "gen_rv", development version) and example pedigree files can be found [here](https://sites.google.com/view/fbatwebpage). The user manual can be found [here](https://drive.google.com/file/d/1QYada0wegEbspwFPRlyv7g9hKNv7krmA/view).
