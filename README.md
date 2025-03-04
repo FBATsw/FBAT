@@ -6,7 +6,7 @@ We added the FBAT-DAP-G method to the new version of FBAT. FBAT-DAP-G is a stati
 FBAT-DAP-G can be applied by using the ‘finemap’ command. The command structure is the following:
 finemap [-v] [variant-list]
 Here, -v is an optional parameter to include more output information. [variant-list] is a list of genetic variants in a region to which fine-mapping should be applied, separated by space. If no variant-list is provided, all genetic variants in the currently loaded dataset are considered. This code is under development and will be updated accordingly. 
-The files 'finemap_example.ped' and 'finemap_example.phe' can be used to test this approach. Download the pre-compiled executable ‘fbat’ and run on a 64-bit Linux system:
+The files 'finemap_example.ped' and 'finemap_example.phe' can be used to test this approach. Download the pre-compiled executable ‘fbat’ and run on a 64-bit Linux system:  
 ./fbat  
 followed by:
 
