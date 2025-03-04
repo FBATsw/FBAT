@@ -1,19 +1,21 @@
 # Source Code
 This repository contains the Family Based Association Test (FBAT) software source code. The FBAT software provides the implementation for several family-based association tests. 
 
-## Update January 2025
-The new code release contains methodology to perform statistical fine-mapping of FBAT association statistics in a genetic region of interest. This code is under development and will be updated accordingly.
-The files 'finemap_example.ped' and 'finemap_example.phe' can be used to test this approach.
-Run:
+## FBAT-DAP-G (update March 2025)
+We added the FBAT-DAP-G method to the new version of FBAT. FBAT-DAP-G is a statistical fine-mapping approach based on the DAP-G method. We adopted the corresponding DAP-G code. We thank the contributors Xiaoquan Wen (University of Michigan), Roger Pique-Regi (Wayne State University), and Yeji Lee (University of Michigan) for distributing the DAP-G C++ Code under the terms of the GNU General Public License. The original code of DAP-G is available at https://github.com/xqwen/dap.
+FBAT-DAP-G can be applied by using the ‘finemap’ command. The command structure is the following:
+finemap [-v] [variant-list]
+Here, -v is an optional parameter to include more output information. [variant-list] is a list of genetic variants in a region to which fine-mapping should be applied, separated by space. If no variant-list is provided, all genetic variants in the currently loaded dataset are considered. This code is under development and will be updated accordingly. 
+The files 'finemap_example.ped' and 'finemap_example.phe' can be used to test this approach. Download the pre-compiled executable ‘fbat’ and run on a 64-bit Linux system:
+./fbat
+followed by:
 
-./fbat  
-
-and then:  
-load finemap_example.ped  
-load finemap_example.phe   
-trait y  
-finemap  
-quit  
+load finemap_example.ped
+load finemap_example.phe
+trait y
+finemap
+quit
+ 
 
 
 ## FBAT-TOOLKIT
