@@ -1,6 +1,9 @@
 # Source Code
 This repository contains the Family Based Association Test (FBAT) software source code. The FBAT software provides the implementation for several family-based association tests. 
 
+## FBATpy (prototype release May 2025)
+We will release a prototype of a Python implementation of FBAT that will support GPUs and multi-core CPUs.  
+
 ## FBAT-DAP-G (update March 2025)
 We added the FBAT-DAP-G method to the new version of FBAT. FBAT-DAP-G is a statistical fine-mapping approach based on the DAP-G method. We adopted the corresponding DAP-G code. We thank the contributors Xiaoquan Wen (University of Michigan), Roger Pique-Regi (Wayne State University), and Yeji Lee (University of Michigan) for distributing the DAP-G C++ Code under the terms of the GNU General Public License. The original code of DAP-G is available at https://github.com/xqwen/dap.
 FBAT-DAP-G can be applied by using the ‘finemap’ command. The command structure is the following:
