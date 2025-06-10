@@ -29,6 +29,8 @@ public:
 	double min_freq;
 	unsigned long num_sim_region; //!/
 	unsigned long max_sim_region; //!/
+	double log10_snp_thresh_p=2.0; //!/
+	double correlation_control_thresh_p=0.25; //!/
 	
     FBAT() { min_size=10; rv_min_size=1; gen_model=model_additive; mode=by_allele; alpha=1.0; tr_offset=0; min_freq=0; maxcmh=kmaxcmh;  num_sim_region=10000; max_sim_region=10000;} //!/ added num_sim_region and max_sim_region
 	void init();
@@ -41,6 +43,8 @@ public:
 	void select_offset(char *s);
 	void select_maxcmh(char *s);
 	void select_rvminsize(char *s);
+	void select_log10_snp_thresh_fm(char *s); //
+	void select_correlation_control_thresh_fm(char *s); //
 	void set_affection_trait(char *s);
 	
 	void select_nsim_region(char *s); //!/

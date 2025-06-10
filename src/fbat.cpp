@@ -116,7 +116,15 @@ void FBAT::init() {
 		{	"finemap",  //!/
  			"finemap [marker] -- perform DAP-G fine-mapping", //!/
   			static_cast<funcp> (&FBAT::finemap) //!/
-		} //!/
+		}, //!/
+		{	"log10_snp_thresh", //!/
+ 			"log10_snp_thresh [value] -- set the log10 SNP threshold for the DAP-G algorithm", //!/
+  			static_cast<funcp> (&FBAT::select_log10_snp_thresh_fm) //!/
+ 		}, //!/
+		{	"correlation_control_thresh", //!/
+ 			"correlation_control_thresh [value] -- set the correlation control threshold for the DAP-G algorithm", //!/
+  			static_cast<funcp> (&FBAT::select_correlation_control_thresh_fm) //!/
+ 		} //!/
 /*		{	"pbat", 
  			"pbat [-o] [-c] [-i] [marker...] -- FBAT test.\n     -c censored trait\n     -i Use conditional mean medel\n     -o optimize offset",
   			static_cast<funcp> (&FBAT::pbat)
@@ -140,7 +148,7 @@ void FBAT::init() {
  		*/
 	};
 
-	addcmd(cmds, 18);
+	addcmd(cmds, 20);
 	
 	MYOUTPUT(os, title)
 	
@@ -1198,6 +1206,7 @@ void FBAT::finemap(char *s) {
 		trait_id[0] = 0;
 	}
 	if(min_size<10){min_size=10;}
+	std::string verbose_filename;
 	/*########################*/
 	int wcnt = WordCount(s);
 	int flag=0;
@@ -1207,6 +1216,10 @@ void FBAT::finemap(char *s) {
 			switch (word[1]) {
 				case 'v': 
 					verbose = true;
+					if (++i > wcnt || !GetWord(s, i, word)) {  // <-- advance i before reading
+						throw Param_Error("Expected output filename after -v");
+					}
+					verbose_filename=word;
 					break;
 			}
 	}
@@ -1337,7 +1350,7 @@ void FBAT::finemap(char *s) {
 						flist->node->stat = ss;
 						
 						if(ss->ogt[0][0].defined()) R_work_tmp(ctr+1, geno_ctr) = gx[0][ss->ogt[0][0].allele_cnt(1)];
-						if(ss->ogt[0][0].defined()) R_work_tmp(ctr+1, geno_ctr) = gx[1][ss->ogt[0][0].allele_cnt(2)];
+						if(ss->ogt[0][0].defined()) R_work_tmp(ctr+2, geno_ctr) = gx[1][ss->ogt[0][0].allele_cnt(2)];
 						
 						if (ss==NULL || ss->mhap==NULL || ss->mhap->len()>maxcmh)
 							continue; 
@@ -1376,6 +1389,13 @@ void FBAT::finemap(char *s) {
 	
 	double m;
 	double tmp;
+	int* include_geno=new int[dim_var+1];
+	if(include_geno==NULL){
+		throw Param_Error("Memory allocation problem.");
+	}
+	for(i=1;i<=dim_var;i++){
+		include_geno[i]=0;
+	}
 	
 	Matrix R_work(dim_var, dim_var);
 	for(i=1;i<=dim_var;i++){
@@ -1410,7 +1430,10 @@ void FBAT::finemap(char *s) {
 	
 	// transform from 'covariance' to 'correlation'
 	ColumnVector variances(dim_var); variances=0.0;
-	for(i=1;i<=dim_var;i++){variances(i)=R_work(i,i);}
+	for(i=1;i<=dim_var;i++){
+		variances(i)=R_work(i,i);
+		if(variances(i)>0.0001){include_geno[i]=1;}
+	}
 	for(i=1;i<=dim_var;i++){
 		for(j=1;j<=dim_var;j++){
 			R_work(i,j)=R_work(i,j)/sqrt(variances(i)*variances(j));
@@ -1428,16 +1451,16 @@ void FBAT::finemap(char *s) {
 		include[i]=0;
 		include[i+1]=0;
 		
-		if(gen_model == model_additive && fcnt[i]>=min_size){
+		if(gen_model == model_additive && fcnt[i]>=min_size && include_geno[i]==1){
 			include[i]=1;
 			incl_ctr++;
 			
 		}
-		if(gen_model == model_recessive && fcnt[i]>=min_size){
+		if(gen_model == model_recessive && fcnt[i]>=min_size && include_geno[i]==1){
 			include[i]=1;
 			incl_ctr++;
 		}
-		if(gen_model == model_recessive && fcnt[i+1]>=min_size){
+		if(gen_model == model_recessive && fcnt[i+1]>=min_size && include_geno[i+1]==1){
 			include[i+1]=1;
 			incl_ctr++;
 		}
@@ -1480,7 +1503,7 @@ void FBAT::finemap(char *s) {
 
 	/*########################################################*/
 	if(verbose){
-		ofstream outFileZ("tmp_Z");
+		ofstream outFileZ((verbose_filename + "_Z").c_str());
 		if (!outFileZ.is_open()) {
 			throw Param_Error("Error opening file.");
 			
@@ -1493,7 +1516,7 @@ void FBAT::finemap(char *s) {
 			outFileZ << "\n"; // New line after each row
 		}
 		outFileZ.close();
-		ofstream outFileR("tmp_R");
+		ofstream outFileR((verbose_filename + "_R").c_str());
 		if (!outFileR.is_open()) {
 			throw Param_Error("Error opening file.");
 			
@@ -1512,7 +1535,10 @@ void FBAT::finemap(char *s) {
 	
 	// DAP-G computation
     controller con;
-    con.initialize(Z, R, n_var, geno_map_p);
+	
+	
+    con.initialize(Z, R, n_var, geno_map_p, correlation_control_thresh_p, log10_snp_thresh_p);
+	
 	
 	
     con.fine_map();
@@ -1535,6 +1561,7 @@ void FBAT::finemap(char *s) {
 	if (idx) delete[] idx;
 	if(fcnt) delete fcnt;
 	if(include) delete include;
+	if(include_geno) delete include_geno;
 }
 void FBAT::hapview_ss(char *s) {
 	
@@ -4972,3 +4999,42 @@ void FBAT::haplotypefrequency(char *s) {
 }
 
 
+
+void FBAT::select_log10_snp_thresh_fm(char *s) { //!/
+	
+	int wcnt = WordCount(s);
+	
+	if (wcnt!=2 && wcnt!=1)
+		throw Param_Error("wrong number of arguments");
+	
+	if (wcnt==2) {
+		char word[64], *c;
+		GetWord(s, 2, word);
+		double dd = strtod(word, &c);
+		if (c==word)
+			throw ERROR("parameter must be a number");
+		log10_snp_thresh_p = dd;
+	}
+	
+	MYOUTPUT(os, "current log10_snp_threshold is " << setprecision(6) << log10_snp_thresh_p << "\n")
+} //!/
+
+
+void FBAT::select_correlation_control_thresh_fm(char *s) { //!/
+	
+	int wcnt = WordCount(s);
+	
+	if (wcnt!=2 && wcnt!=1)
+		throw Param_Error("wrong number of arguments");
+	
+	if (wcnt==2) {
+		char word[64], *c;
+		GetWord(s, 2, word);
+		double dd = strtod(word, &c);
+		if (c==word)
+			throw ERROR("parameter must be a number");
+		correlation_control_thresh_p = dd;
+	}
+	
+	MYOUTPUT(os, "current correlation_control_threshold is " << setprecision(6) << correlation_control_thresh_p << "\n")
+} //!/

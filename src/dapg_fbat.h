@@ -102,9 +102,9 @@ class controller {
 		ColumnVector *Z=NULL; //init
 		Matrix *R=NULL; //init
 
-		void initialize(ColumnVector &Zp, Matrix &Rp, int n_var_p, map<int, string> geno_map_p);
+		void initialize(ColumnVector &Zp, Matrix &Rp, int n_var_p, map<int, string> geno_map_p, double size_select_thresh_p, double log10_snp_thresh_p);
 		void set_default_grid();
-        void set_default_options();
+        void set_default_options(double correlation_control_thresh_p, double log10_snp_thresh_p);
 		
 		void set_prior(double pi1);
 		void init();

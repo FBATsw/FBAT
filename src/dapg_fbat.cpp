@@ -17,13 +17,14 @@ double log10_weighted_sum(vector<double> &vec, vector<double> &wts){
     return (max+log10(sum));
 }
 
-void controller::initialize(ColumnVector &Zp, Matrix &Rp, int n_var_p, map<int, string> geno_map_p){
+void controller::initialize(ColumnVector &Zp, Matrix &Rp, int n_var_p, map<int, string> geno_map_p, 
+double size_select_thresh_p, double log10_snp_thresh_p){
 
     
     set_default_grid();  
 	n_var=n_var_p;
 	
-	set_default_options();
+	set_default_options(size_select_thresh_p, log10_snp_thresh_p);
     
 	int i,j;
     Z=new ColumnVector(n_var); //non-standard
@@ -87,17 +88,20 @@ void controller::set_default_options(){
     ld_control_thresh = 0.25; // by default  ld control with r^2 = 0.25
 
 }*/
-void controller::set_default_options(){
+void controller::set_default_options(double correlation_control_thresh_p, double log10_snp_thresh_p){
 
     max_size = n_var;
     size_limit = n_var;
-    size_select_thresh = 0.01;  
-
+	
+    size_select_thresh = 0.01;
+	ld_control_thresh = correlation_control_thresh_p;
+	
+	
     cluster_pip_thresh = 0.25; // for output cluster purpose
     priority_msize = 100;
-    log10_snp_thresh = 2;
+    log10_snp_thresh = log10_snp_thresh_p;
     
-    ld_control_thresh = 0.25; // by default  ld control with r^2 = 0.25
+    
 
 }
 //okay
