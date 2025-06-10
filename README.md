@@ -4,21 +4,50 @@ This repository contains the Family Based Association Test (FBAT) software sourc
 ## FBATpy (prototype release May 2025)
 We will release a prototype of a Python implementation of FBAT that will support GPUs and multi-core CPUs.  
 
-## FBAT-DAP-G (update March 2025)
-We added the FBAT-DAP-G method to the new version of FBAT. FBAT-DAP-G is a statistical fine-mapping approach based on the DAP-G method. We adopted the corresponding DAP-G code. We thank the contributors Xiaoquan Wen (University of Michigan), Roger Pique-Regi (Wayne State University), and Yeji Lee (University of Michigan) for distributing the DAP-G C++ Code under the terms of the GNU General Public License. The original code of DAP-G is available at https://github.com/xqwen/dap.
-FBAT-DAP-G can be applied by using the ‘finemap’ command. The command structure is the following:
-finemap [-v] [variant-list]
-Here, -v is an optional parameter to include more output information. [variant-list] is a list of genetic variants in a region to which fine-mapping should be applied, separated by space. If no variant-list is provided, all genetic variants in the currently loaded dataset are considered. This code is under development and will be updated accordingly. 
-The files 'finemap_example.ped' and 'finemap_example.phe' can be used to test this approach. Download the pre-compiled executable ‘fbat’ and run on a 64-bit Linux system:  
-./fbat  
-followed by:
+## FBAT-DAP-G 
+We added the FBAT-DAP-G method to the new version of FBAT. FBAT-DAP-G is a statistical fine-mapping approach based on the DAP-G method. We adopted the corresponding DAP-G code. 
+We thank the contributors Xiaoquan Wen (University of Michigan), Roger Pique-Regi (Wayne State University), and Yeji Lee (University of Michigan) for distributing the DAP-G C++ Code under the terms of the GNU General Public License. The original code of DAP-G is available at https://github.com/xqwen/dap. 
+
+FBAT-DAP-G can be applied by using the ‘finemap’ command. The command structure is the following:   
+finemap [-v filename] [variant-list]  
+
+Here, -v is an optional parameter to include more output information, while filename determines the names of the written files (with endings _R and _Z) of the computed correlation matrix and z-scores, respectively. 
+[variant-list] is a list of genetic variants in a region to which fine-mapping should be applied, separated by space. If no variant-list is provided, all genetic variants in the currently loaded dataset are considered. This code is under development and will be updated accordingly. 
+One can modify the tuning parameters lambda (controls the addition of new candidate factors in the model) and the signal cluster correlation threshold (controls the definition of clusters based on within-correlations) with:  
+log10_snp_thresh 2.0 					(default value)  
+
+and
+  
+correlation_control_thresh 0.25 				(default value)  
+
+The genetic model can be specified by  
+
+model a							(default value, additive)  
+
+or
+ 
+model r							(recessive)  
+
+The files 'finemap_example.ped' and 'finemap_example.phe' can be used to test this approach. Download the pre-compiled executable ‘fbat’ and run on a 64-bit Linux system:
+
+./fbat
+
+followed by:  
 
 load finemap_example.ped  
 load finemap_example.phe  
 trait y  
 finemap  
 quit  
+
+The top two results should be:  
+variant         incl_probability            cluster        log_BF               z-score  
+>>> m836_1                  0.951                    1                 18.615             9.696  
+>>> m837_1                  0.049                    1                 17.356             9.378  
+
+Here, the simulation underlying the example data assigned a true genetic effect to m836_1, while m837_1 is in strong LD (additive genetic model).
  
+
 
 
 ## FBAT-TOOLKIT
