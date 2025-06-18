@@ -1,5 +1,8 @@
 # Source Code
-This repository contains the Family Based Association Test (FBAT) software source code. The FBAT software provides the implementation for several family-based association tests. 
+This repository contains the Family Based Association Test (FBAT) software source code. The FBAT software provides the implementation for several family-based association tests.  
+
+## License
+FBAT is distributed under the terms of the GNU General Public License 3.0 as published by the Free Software Foundation.  
 
 ## FBATpy (prototype release May 2025)
 We will release a prototype of a Python implementation of FBAT that will support GPUs and multi-core CPUs.  
